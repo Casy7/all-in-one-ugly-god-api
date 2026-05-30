@@ -14,8 +14,9 @@ class LocationDetailView(View):
             except Location.DoesNotExist:
                 return JsonResponse({"error": "location not found"}, status=404)
         
-        name_query = request.GET.get('name', '')
-        locations = Location.objects.filter(name__icontains=name_query)
+        # extract search query parameter
+        q_query = request.GET.get('q', '')
+        locations = Location.objects.filter(name__icontains=q_query)
         data = [{"id": l.id, "name": l.name, "description": l.description, "photo": l.last_recorded_photo.url if l.last_recorded_photo else None} for l in locations]
         return JsonResponse(data, safe=False)
 
@@ -32,8 +33,9 @@ class CharacterDetailView(View):
             except Character.DoesNotExist:
                 return JsonResponse({"error": "character not found"}, status=404)
         
-        name_query = request.GET.get('name', '')
-        characters = Character.objects.filter(name__icontains=name_query)
+        # filter characters by name query
+        q_query = request.GET.get('q', '')
+        characters = Character.objects.filter(name__icontains=q_query)
         data = [{
             "id": c.id, "name": c.name, "race": c.race, "is_dangerous": c.is_dangerous,
             "location": c.last_known_location.name if c.last_known_location else None,
@@ -54,8 +56,9 @@ class ArmyDetailView(View):
             except Army.DoesNotExist:
                 return JsonResponse({"error": "army not found"}, status=404)
         
-        # armies don't explicitly require search by name in prompt but let's keep it uniform
-        armies = Army.objects.all()
+        # filter armies by name query
+        q_query = request.GET.get('q', '')
+        armies = Army.objects.filter(name__icontains=q_query)
         data = [{
             "id": a.id, "name": a.name, "faction": a.faction, "size": a.size,
             "location": a.last_known_location.name if a.last_known_location else None,
